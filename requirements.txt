@@ -1,0 +1,4 @@
+Flask
+werkzeug
+python-dotenv
+gunicorn
