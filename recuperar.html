@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Clave - Guara 1 Pro Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { width: 100%; max-width: 420px; padding: 40px; text-align: center; }
+        .form-group { text-align: left; margin-bottom: 24px; }
+        input { width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-card); border-radius: 12px; color: white; outline: none; transition: all 0.3s; }
+        input:focus { border-color: var(--accent-blue); background: rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body>
+    <div class="card glass animate-fade">
+        <h1 style="font-size: 1.5rem; margin-bottom: 32px;">Recuperar Clave</h1>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; padding: 12px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem;">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% if step == 1 %}
+            <form action="/recuperar" method="POST">
+                <input type="hidden" name="paso" value="1">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Usuario</label>
+                    <input type="text" name="username" required autofocus placeholder="Nombre de usuario">
+                </div>
+                <button type="submit" class="btn btn-blue" style="width: 100%; justify-content: center; height: 50px;">
+                    Continuar <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            <div style="margin-top:24px;"><a href="/login" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">Volver al Login</a></div>
+        {% elif step == 2 %}
+            <form action="/recuperar" method="POST">
+                <input type="hidden" name="paso" value="2">
+                <input type="hidden" name="username" value="{{ user['username'] }}">
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Pregunta de Seguridad</label>
+                    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--border-card); color: white;">
+                        {{ user['pregunta_seguridad'] }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Respuesta</label>
+                    <input type="text" name="respuesta" required placeholder="Escribe tu respuesta">
+                </div>
+
+                <button type="submit" class="btn btn-blue" style="width: 100%; justify-content: center; height: 50px;">
+                    Ver mi clave <i class="fas fa-eye"></i>
+                </button>
+            </form>
+            <div style="margin-top:24px;"><a href="/login" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">Volver al Login</a></div>
+        {% elif step == 3 %}
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Tu Clave es:</label>
+                <div style="padding: 20px; background: rgba(46, 204, 113, 0.1); border: 1px solid var(--accent-emerald); border-radius: 12px; color: var(--accent-emerald); font-size: 1.2rem; font-weight: 700; font-family: monospace;">
+                    {{ password_display }}
+                </div>
+            </div>
+            <a href="/login" class="btn btn-blue" style="width: 100%; justify-content: center; margin-top: 12px;">Ir al Login</a>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guara 1 Pro Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Mobile overlay (closes sidebar on tap) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Mobile Top Bar (tablet & phone) -->
+    <header class="mobile-topbar">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="width: 32px; border-radius: 8px;">
+            <span style="font-weight: 700; font-size: 1rem;">Guara 1</span>
+        </div>
+        <span class="zone-tag {% if session.get('zona') == 'Sótano' %}zone-sotano{% elif session.get('zona') == 'Terraza' %}zone-terraza{% else %}zone-sotano{% endif %}" style="font-size: 0.68rem;">
+            {{ session.get('zona', '')|upper }}
+        </span>
+    </header>
+
+    <div class="app-container">
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="glass" id="sidebar">
+            <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-card);">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="width: 72px; border-radius: 12px;">
+                <h2 style="font-size: 1.1rem; margin-top: 10px;" class="sidebar-text">Guara 1</h2>
+                <p style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px;" class="sidebar-text">{{ session.get('username', '') }}</p>
+            </div>
+            
+            <nav style="flex: 1;">
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 8px;">
+                        <a href="/" class="btn" style="width:100%; justify-content: flex-start; background: rgba(255,255,255,0.05);" onclick="closeSidebar()">
+                            <i class="fas fa-chart-pie" style="width: 20px; text-align: center;"></i>
+                            <span class="sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    {% if session.get('rol') in ['admin', 'supervisor'] %}
+                    <li style="margin-bottom: 8px;">
+                        <a href="{{ url_for('historical_reports') }}" class="btn" style="width:100%; justify-content: flex-start; background: rgba(255,255,255,0.05);" onclick="closeSidebar()">
+                            <i class="fas fa-file-invoice-dollar" style="width: 20px; text-align: center;"></i>
+                            <span class="sidebar-text">Reportes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if session.get('rol') == 'admin' %}
+                    <li style="margin-bottom: 8px;">
+                        <a href="#" class="btn" style="width:100%; justify-content: flex-start; background: rgba(255,255,255,0.05);" onclick="closeSidebar(); showModal('usersModal');">
+                            <i class="fas fa-users-cog" style="width: 20px; text-align:center;"></i>
+                            <span class="sidebar-text">Usuarios</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <div style="padding-top: 16px; border-top: 1px solid var(--border-card); margin-top: auto;">
+                <a href="/logout" class="btn btn-red" style="width:100%; justify-content: center;">
+                    <i class="fas fa-sign-out-alt"></i> <span class="sidebar-text">Salir</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN ===== -->
+        <main>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div style="margin-bottom: 20px;">
+                  {% for category, message in messages %}
+                    {% if category not in ['receipt', 'entry_receipt'] %}
+                    <div style="padding: 13px 18px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
+                        {% if category == 'success' %}background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: #2ecc71;
+                        {% else %}background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c;{% endif %}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

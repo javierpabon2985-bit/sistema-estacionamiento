@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Reportes Históricos</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i>Volver al Panel
+        </a>
+    </div>
+
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs border-secondary mb-4" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active bg-transparent border-0 text-light" id="active-tab" data-bs-toggle="tab" data-bs-target="#active-pane" type="button" role="tab">
+                <i class="fas fa-clock me-2"></i>Vehículos Activos
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link bg-transparent border-0 text-secondary" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab">
+                <i class="fas fa-history me-2"></i>Historial de Salidas
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="reportTabsContent">
+        <!-- Vehículos Activos -->
+        <div class="tab-pane fade show active" id="active-pane" role="tabpanel">
+            <div class="card bg-dark border-secondary shadow-lg rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead class="bg-secondary text-light">
+                            <tr>
+                                <th class="px-4 py-3">Placa</th>
+                                <th class="py-3">Zona</th>
+                                <th class="py-3">Tipo</th>
+                                <th class="py-3">Modelo/Color</th>
+                                <th class="py-3">Tarjeta</th>
+                                <th class="py-3">Entrada</th>
+                                <th class="px-4 py-3 text-end">Operador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in registros %}
+                            <tr class="border-secondary">
+                                <td class="px-4"><span class="badge bg-primary fs-6 px-3 py-2 rounded-3 shadow-sm">{{ reg.placa }}</span></td>
+                                <td><span class="text-secondary small">{{ reg.nivel }}</span></td>
+                                <td>
+                                    {% if reg.tipo_vehiculo == 'Carros' %}
+                                    <i class="fas fa-car text-info me-2"></i>Carro
+                                    {% else %}
+                                    <i class="fas fa-motorcycle text-warning me-2"></i>Moto
+                                    {% endif %}
+                                </td>
+                                <td><span class="small text-muted">{{ reg.modelo or 'N/A' }}</span> / <span class="small text-muted">{{ reg.color or 'N/A' }}</span></td>
+                                <td><span class="badge bg-dark border border-secondary">#{{ reg.numero_tarjeta }}</span></td>
+                                <td class="small">{{ reg.hora_entrada }}</td>
+                                <td class="px-4 text-end"><span class="text-info">{{ reg.operador or 'Sistema' }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not registros %}
+                            <tr><td colspan="7" class="text-center py-5 text-muted">No hay vehículos activos.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Salidas -->
+        <div class="tab-pane fade" id="history-pane" role="tabpanel">
+            <div class="card bg-dark border-secondary shadow-lg rounded-4 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead class="bg-secondary text-light">
+                            <tr>
+                                <th class="px-4 py-3">Placa</th>
+                                <th class="py-3">Zona</th>
+                                <th class="py-3">Entrada / Salida</th>
+                                <th class="py-3">Monto Total</th>
+                                <th class="px-4 py-3 text-end">Operador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in historico %}
+                            <tr class="border-secondary">
+                                <td class="px-4"><span class="badge bg-secondary-subtle text-dark fs-6 px-3 py-2 rounded-3">{{ reg.placa }}</span></td>
+                                <td><span class="text-secondary small">{{ reg.nivel }}</span></td>
+                                <td class="small py-2">
+                                    <div class="text-success"><i class="fas fa-sign-in-alt me-1"></i>{{ reg.hora_entrada }}</div>
+                                    <div class="text-danger"><i class="fas fa-sign-out-alt me-1"></i>{{ reg.hora_salida }}</div>
+                                </td>
+                                <td><span class="text-success-emphasis fw-bold fs-5">${{ "{:,.0f}".format(reg.monto_pagado) }}</span></td>
+                                <td class="px-4 text-end"><span class="text-info">{{ reg.operador or 'Sistema' }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not historico %}
+                            <tr><td colspan="5" class="text-center py-5 text-muted">Aún no hay registros históricos.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tabs .nav-link {
+        transition: all 0.2s ease;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px 10px 0 0;
+    }
+    .nav-tabs .nav-link:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.05) !important;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd !important;
+        background: #1a1d20 !important;
+        border: 1px solid #373b3e !important;
+        border-bottom: 2px solid #0d6efd !important;
+    }
+    .table-dark {
+        --bs-table-bg: #1a1d20;
+    }
+    .text-success-emphasis { color: #75b798 !important; }
+</style>
+{% endblock %}

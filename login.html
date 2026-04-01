@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Guara 1 Pro Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            text-align: center;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+        input:focus { border-color: var(--accent-blue); background: rgba(255, 255, 255, 0.08); }
+        
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .zone-option {
+            cursor: pointer;
+            padding: 12px 8px;
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        input[type="radio"]:checked + .zone-option {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card glass animate-fade">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="width: 120px; margin-bottom: 24px; border-radius: 16px;">
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; padding: 12px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; border: 1px solid rgba(231, 76, 60, 0.2);">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% if recuperar %}
+            <h1 style="font-size: 1.5rem; margin-bottom: 32px;">Recuperar Acceso</h1>
+            
+            {% if step == 1 %}
+            <form action="/recuperar_password" method="POST">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Usuario</label>
+                    <input type="text" name="username" required autofocus placeholder="Nombre de usuario">
+                </div>
+                <button type="submit" class="btn btn-blue" style="width: 100%; justify-content: center; height: 50px;">
+                    Continuar <i class="fas fa-arrow-right"></i>
+                </button>
+                <div style="margin-top:24px;"><a href="/login" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">Volver al Login</a></div>
+            </form>
+            {% elif step == 2 %}
+            <form action="/recuperar_password" method="POST">
+                <input type="hidden" name="username" value="{{ user['username'] }}">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Pregunta de Seguridad</label>
+                    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--border-card); color: white;">
+                        {{ user['pregunta_seguridad'] }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Tu Respuesta</label>
+                    <input type="text" name="respuesta" required placeholder="Escribe tu respuesta">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Nueva Contraseña (opcional)</label>
+                    <input type="password" name="nueva_password" placeholder="Ingresa nueva clave si deseas cambiarla">
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" name="accion" value="ver" class="btn" style="flex: 1; justify-content: center; background: rgba(255,255,255,0.05);">Ver Clave</button>
+                    <button type="submit" name="accion" value="cambiar" class="btn btn-blue" style="flex: 1.5; justify-content: center;">Cambiar Clave</button>
+                </div>
+            </form>
+            {% endif %}
+
+        {% else %}
+            <h1 style="font-size: 1.8rem; margin-bottom: 8px; letter-spacing: -0.5px;">Bienvenido</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 40px; font-size: 0.95rem;">Ingresa tus credenciales para continuar</p>
+            
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Usuario</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-user" style="position: absolute; left: 16px; top: 18px; color: var(--text-secondary); font-size: 0.9rem;"></i>
+                        <input type="text" name="username" required autofocus placeholder="Nombre de usuario" style="padding-left: 44px;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Contraseña</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-lock" style="position: absolute; left: 16px; top: 18px; color: var(--text-secondary); font-size: 0.9rem;"></i>
+                        <input type="password" name="password" required placeholder="••••••••" style="padding-left: 44px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Zona de Trabajo</label>
+                    <div class="zone-grid">
+                        <label>
+                            <input type="radio" name="zona_trabajo" value="Sótano" required style="display: none;">
+                            <div class="zone-option">Sótano</div>
+                        </label>
+                        <label>
+                            <input type="radio" name="zona_trabajo" value="Terraza" required style="display: none;">
+                            <div class="zone-option">Terraza</div>
+                        </label>
+                        <label>
+                            <input type="radio" name="zona_trabajo" value="Todas" required style="display: none;">
+                            <div class="zone-option">Todas</div>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="btnEntrar" type="submit" class="btn btn-blue" style="width: 100%; height: 55px; justify-content: center; font-size: 1.1rem; margin-top: 12px;">
+                    Entrar <i class="fas fa-sign-in-alt"></i>
+                </button>
+                
+                <div id="acceso-restringido" style="display:none; color: #e74c3c; font-size: 0.8rem; margin-top: 16px;">
+                    <i class="fas fa-exclamation-triangle"></i> Acceso global restringido para operadores
+                </div>
+                
+                <div style="margin-top:32px;">
+                    <a href="/recuperar" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">¿Olvidaste tu contraseña?</a>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.querySelector('input[name="username"]');
+            const btnEntrar = document.getElementById('btnEntrar');
+            const msg = document.getElementById('acceso-restringido');
+            const zonaRadios = document.querySelectorAll('input[name="zona_trabajo"]');
+
+            if (!usernameInput || !btnEntrar) return;
+
+            const update = () => {
+                const isOperador = usernameInput.value.trim().toLowerCase() === 'operador';
+                const seleccion = document.querySelector('input[name="zona_trabajo"]:checked');
+                const zona = seleccion ? seleccion.value : null;
+                const bloqueado = isOperador && zona === 'Todas';
+
+                btnEntrar.style.opacity = bloqueado ? '0.5' : '1';
+                btnEntrar.style.pointerEvents = bloqueado ? 'none' : 'auto';
+                if (msg) msg.style.display = bloqueado ? 'block' : 'none';
+            };
+
+            usernameInput.addEventListener('input', update);
+            zonaRadios.forEach(r => r.addEventListener('change', update));
+            update();
+        });
+    </script>
+</body>
+</html>

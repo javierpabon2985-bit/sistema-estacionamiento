@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="animate-fade">
+    <div class="top-header">
+        <div>
+            <h1 style="font-size: 2rem;">Gestión de Usuarios</h1>
+            <p style="color: var(--text-secondary);">Control de accesos y seguridad</p>
+        </div>
+        <a href="/" class="btn btn-blue"><i class="fas fa-arrow-left"></i> Volver al Panel</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px;">
+        <div class="glass" style="padding: 32px;">
+            <h3 style="margin-bottom: 24px;">Crear Usuario</h3>
+            <form action="/crear_usuario" method="POST">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Nombre</label>
+                    <input type="text" name="username" class="glass" style="width: 100%; padding: 12px; border: 1px solid var(--border-card); color: white; border-radius: 10px;" required>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Contraseña</label>
+                    <input type="password" name="password" class="glass" style="width: 100%; padding: 12px; border: 1px solid var(--border-card); color: white; border-radius: 10px;" required>
+                </div>
+                <div style="margin-bottom: 32px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.85rem;">Rol</label>
+                    <select name="rol" class="glass" style="width: 100%; padding: 12px; border: 1px solid var(--border-card); color: white; border-radius: 10px; background: #1a1a1a;">
+                        <option value="user">Operador</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-emerald" style="width: 100%; justify-content: center;">Confirmar Creación</button>
+            </form>
+        </div>
+
+        <div class="glass" style="padding: 32px;">
+            <h3 style="margin-bottom: 24px;">Usuarios del Sistema</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid var(--border-card);">
+                        <th style="padding: 16px; color: var(--text-secondary); font-weight: 500;">Usuario</th>
+                        <th style="padding: 16px; color: var(--text-secondary); font-weight: 500;">Clave Hash</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr style="border-bottom: 1px solid var(--border-card);">
+                        <td style="padding: 16px; font-weight: 600;">{{ u.username }}</td>
+                        <td style="padding: 16px; color: var(--text-secondary); font-size: 0.8rem; font-family: monospace;">{{ u.password_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
