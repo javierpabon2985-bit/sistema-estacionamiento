@@ -278,9 +278,30 @@ input:focus, select:focus { border-color: var(--accent-blue); background: rgba(2
     /* Compact form grid on phone */
     .form-2col { grid-template-columns: 1fr !important; }
 
-    /* Table: hide lesser columns */
-    table th:nth-child(3),
-    table td:nth-child(3) { display: none; }
+/* Mostrar la columna de acciones en móviles */
+table th:nth-child(3),
+table td:nth-child(3) { display: table-cell; }
+
+/* Hacer la tabla desplazable horizontalmente */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Estilos específicos para los botones en móviles */
+.mobile-button-cell {
+    min-width: 120px;
+    background: linear-gradient(to right, transparent, rgba(10,11,13,0.9));
+}
+
+.btn {
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+.btn-blue, .btn-red {
+    padding: 10px 0;
+}
 
     .modal-overlay { padding: 10px; align-items: flex-end; }
     .modal-overlay > div { 
