@@ -216,7 +216,7 @@ def login():
                 session['rol'] = user['rol']
                 
 # Update last login
-now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
+now = datetime.datetime.now(pytz.timezone('America/Caracas')).strftime("%Y-%m-%d %H:%M:%S")
                 conn = get_db_connection()
                 conn.execute('UPDATE usuarios SET last_login = ? WHERE id = ?', (now, user['id']))
                 conn.commit()
@@ -705,4 +705,5 @@ def historical_reports():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
