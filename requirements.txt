@@ -2,3 +2,4 @@ Flask
 werkzeug
 python-dotenv
 gunicorn
+pytz
