@@ -215,12 +215,12 @@ def login():
                 session['full_name'] = user['full_name'] or user['username']
                 session['rol'] = user['rol']
                 
-# Update last login
-now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
-conn = get_db_connection()
-conn.execute('UPDATE usuarios SET last_login = ? WHERE id = ?', (now, user['id']))
-conn.commit()
-conn.close()
+                # Update last login
+                now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
+                conn = get_db_connection()
+                conn.execute('UPDATE usuarios SET last_login = ? WHERE id = ?', (now, user['id']))
+                conn.commit()
+                conn.close()
                 
                 # RESTRICCIÓN: Solo admin puede ver "Todas"
                 if user['rol'] != 'admin' and zona_trabajo == 'Todas':
