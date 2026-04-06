@@ -216,7 +216,7 @@ def login():
                 session['rol'] = user['rol']
                 
                 # Update last login
-      now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
+        now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
                 conn = get_db_connection()
                 conn.execute('UPDATE usuarios SET last_login = ? WHERE id = ?', (now, user['id']))
                 conn.commit()
