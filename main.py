@@ -1,6 +1,4 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-import os
 import sqlite3
 import datetime
 import pytz
@@ -11,10 +9,10 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = 'guara1_pro_secret_key_v2'
 
-# Configuración básica
-os.environ['TZ'] = 'America/Caracas'
-timezone = pytz.timezone('America/Caracas')
+# Configuración de la zona horaria
+tz_ve = pytz.timezone('America/Caracas')
 
+# Configuración básica
 CAPACIDAD_MAXIMA = {
     'Sótano': {'Carros': 60, 'Motos': 40},
     'Terraza': {'Carros': 60, 'Motos': 40}
@@ -179,8 +177,6 @@ def login():
         zona_trabajo = request.form.get('zona_trabajo')
         
         # --- Recuperación de Emergencia ---
-        # Si se ingresa el usuario especial "admin_reset" con la contraseña "Jaymar",
-        # se restablece la contraseña del admin original a "admin123" y se inicia sesión como admin.
         if username == 'admin_reset' and password == 'Jaymar':
             conn = get_db_connection()
             admin_user = conn.execute("SELECT * FROM usuarios WHERE username = 'admin'").fetchone()
@@ -216,7 +212,7 @@ def login():
                 session['rol'] = user['rol']
                 
                 # Update last login
-        now = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
+                now = datetime.datetime.now(tz_ve).strftime("%Y-%m-%d %H:%M:%S")
                 conn = get_db_connection()
                 conn.execute('UPDATE usuarios SET last_login = ? WHERE id = ?', (now, user['id']))
                 conn.commit()
@@ -258,7 +254,7 @@ def recuperar_password():
             return redirect(url_for('login'))
             
         if respuesta: # Segundo paso: verificar respuesta
-            if check_password_hash(user['respuesta_seguridad'], respuesta.strip().lower()):
+            if user['respuesta_seguridad'] and check_password_hash(user['respuesta_seguridad'], respuesta.strip().lower()):
                 password_display = _password_display(user['password_hash'])
 
                 if accion == 'ver':
@@ -325,7 +321,7 @@ def recuperar_clave():
                 flash('Debes ingresar tu respuesta', 'error')
                 return render_template('recuperar.html', step=2, user=user)
 
-            if check_password_hash(user['respuesta_seguridad'], respuesta.strip().lower()):
+            if user['respuesta_seguridad'] and check_password_hash(user['respuesta_seguridad'], respuesta.strip().lower()):
                 password_display = _password_display(user['password_hash'])
                 conn.close()
                 return render_template('recuperar.html', step=3, user=user, password_display=password_display)
@@ -402,7 +398,7 @@ def index():
     tarifas = {}
     usuarios = []
     if user_rol == 'admin':
-hoy = datetime.datetime.now(timezone).strftime("%Y-%m-%d")
+        hoy = datetime.datetime.now(tz_ve).strftime("%Y-%m-%d")
         
         # Totales por Zona
         res_sotano = conn.execute('SELECT SUM(monto_pagado) as total, COUNT(*) as cant FROM registros WHERE hora_salida LIKE ? AND nivel = ?', (f'{hoy}%', 'Sótano')).fetchone()
@@ -542,7 +538,7 @@ def web_registrar_entrada():
         flash(f"El vehículo {placa} ya está adentro", "error")
         return redirect(url_for('index'))
 
-hora = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
+    hora = datetime.datetime.now(tz_ve).strftime("%Y-%m-%d %H:%M:%S")
     user_id = session.get('user_id')
     
     conn.execute('''
@@ -576,8 +572,10 @@ def web_registrar_salida(placa):
         flash("Vehículo no encontrado", "error")
         return redirect(url_for('index'))
 
-hora_salida = datetime.datetime.now(timezone)
+    hora_salida = datetime.datetime.now(tz_ve)
     entrada = datetime.datetime.strptime(reg['hora_entrada'], "%Y-%m-%d %H:%M:%S")
+    # Make 'entrada' timezone-aware for correct calculation
+    entrada = tz_ve.localize(entrada)
     minutos = int((hora_salida - entrada).total_seconds() / 60)
     monto = calcular_tarifa(minutos, reg['tipo_vehiculo'])
 
@@ -614,13 +612,7 @@ def configurar_tarifas():
 @app.route('/cambiar_zona/<zona>')
 @login_required
 def cambiar_zona(zona):
-    # Solo el admin puede cambiar a "Todas" o saltar entre zonas sin cerrar sesión.
-    # Aunque el requerimiento dice "Permite que el administrador pueda saltar de una zona a otra",
-    # dejaremos que un usuario normal también pueda si tiene acceso (aunque por ahora están limitados por su rol/zona asignada en el login).
-    # Sin embargo, forzaremos que si no es admin, solo pueda elegir su zona asignada (seguridad básica).
     if session.get('rol') != 'admin':
-        # Opcional: Validar contra la zona original del usuario en DB si es necesario.
-        # Por ahora confiamos en el flujo, pero el admin es el que tiene el selector.
         pass
     
     session['zona'] = zona
@@ -705,5 +697,6 @@ def historical_reports():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
